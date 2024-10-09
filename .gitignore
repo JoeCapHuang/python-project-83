@@ -2,6 +2,7 @@ __pycache__
 dist/
 *.pyc
 *.cast
+.env
 .venv/
 .idea/
 .coverage
