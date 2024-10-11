@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash
 import os
 from dotenv import load_dotenv
 
@@ -15,4 +15,9 @@ def index():
 
 @app.route('/urls')
 def urls_index():
-    return render_template('urls.html')
+    return render_template('urls/index.html')
+
+
+@app.route('/urls/<id>')
+def url_show(id):
+    return render_template('urls/show.html')
