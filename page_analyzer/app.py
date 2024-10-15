@@ -2,6 +2,7 @@ from flask import Flask, render_template, flash, request, redirect, url_for
 import validators
 import os
 from dotenv import load_dotenv
+from .urls_repository import URLRepository
 
 
 load_dotenv()
@@ -16,7 +17,10 @@ def index():
 
 @app.route('/urls', methods=['GET'])
 def urls_index():
-    return render_template('urls/index.html')
+    repo = URLRepository()
+    all_urls = repo.get_all_urls()
+    repo.close()
+    return render_template('urls/index.html', urls=all_urls)
 
 
 @app.route('/urls', methods=['POST'])
@@ -24,11 +28,14 @@ def urls_post():
     url = request.form.get('url')
     if not url:
         flash('URL не может быть пустым', 'error')
+        return redirect(url_for('index'))
 
     if validators.url(url):
-        
-        flash('Страница успешно добавлена', 'success')
-        return redirect(url_for('urls_index'))
+        repo = URLRepository()
+        repo_id, message = repo.add_url(url)
+        repo.close()
+        flash(message)
+        return redirect(url_for('url_show', id=repo_id))
 
     else:
         flash('Некорректный URL', 'error')
@@ -36,5 +43,13 @@ def urls_post():
 
 
 @app.route('/urls/<id>')
-def url_show(id):
-    return render_template('urls/show.html')
+def url_show(url_id):
+    repo = URLRepository()
+    url_data = repo.get_url_by_id(url_id)
+    repo.close()
+
+    if url_data:
+        return render_template('urls/show.html', url=url_data)
+    else:
+        flash('URL не найден', 'error')
+        return redirect(url_for('urls_index'))
