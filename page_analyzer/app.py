@@ -28,11 +28,11 @@ def urls_post():
     url = request.form.get('url')
 
     if len(url) > 255:
-        flash('URL не должен превышать 255 символов', 'error')
+        flash('URL превышает 255 символов', 'danger')
         return redirect(url_for('index'))
 
     if not url:
-        flash('URL не может быть пустым', 'error')
+        flash('URL не может быть пустым', 'danger')
         return redirect(url_for('index'))
 
     if validators.url(url):
@@ -43,7 +43,7 @@ def urls_post():
         return redirect(url_for('url_show', url_id=repo_id))
 
     else:
-        flash('Некорректный URL', 'error')
+        flash('Некорректный URL', 'danger')
         return redirect(url_for('index'))
 
 
