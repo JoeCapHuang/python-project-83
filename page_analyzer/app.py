@@ -35,7 +35,7 @@ def urls_post():
         flash('URL не может быть пустым', 'danger')
         return redirect(url_for('index'))
 
-    if validators.url(url):
+    if validators.url(url, public=False):
         repo = URLRepository()
         repo_id, message = repo.add_url(url)
         repo.close()
