@@ -26,6 +26,11 @@ def urls_index():
 @app.route('/urls', methods=['POST'])
 def urls_post():
     url = request.form.get('url')
+
+    if len(url) > 255:
+        flash('URL не должен превышать 255 символов', 'error')
+        return redirect(url_for('index'))
+
     if not url:
         flash('URL не может быть пустым', 'error')
         return redirect(url_for('index'))
@@ -34,22 +39,18 @@ def urls_post():
         repo = URLRepository()
         repo_id, message = repo.add_url(url)
         repo.close()
-        flash(message)
-        return redirect(url_for('url_show', id=repo_id))
+        flash(*message)
+        return redirect(url_for('url_show', url_id=repo_id))
 
     else:
         flash('Некорректный URL', 'error')
         return redirect(url_for('index'))
 
 
-@app.route('/urls/<id>')
+@app.route('/urls/<url_id>')
 def url_show(url_id):
     repo = URLRepository()
     url_data = repo.get_url_by_id(url_id)
     repo.close()
 
-    if url_data:
-        return render_template('urls/show.html', url=url_data)
-    else:
-        flash('URL не найден', 'error')
-        return redirect(url_for('urls_index'))
+    return render_template('urls/show.html', url=url_data)

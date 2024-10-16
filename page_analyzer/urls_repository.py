@@ -26,7 +26,7 @@ class URLRepository:
             if url_id:
                 return url_id['id'], ('Страница уже существует', 'info')
 
-            date = datetime.now().date()
+            date = datetime.now()
             cur.execute("INSERT INTO urls (name, created_at)"
                         "VALUES (%s, %s) RETURNING id;", (name, date))
             self.conn.commit()
