@@ -17,7 +17,14 @@
     </tr>
     </thead>
     <tbody>
-      
+      {% for id, name, _ in urls %}
+      <tr>
+        <th>{{id}}</th>
+        <th>{{name}}</th>
+        <th></th>
+        <th></th>
+      </tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>
