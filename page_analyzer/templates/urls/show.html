@@ -6,7 +6,7 @@
     <div class="container-lg mt-3">
       <h1>{{url.name}}</h1>
 
-    
+
   <div class="table-responsive">
     <table class="table table-bordered table-hover text-nowrap" data-test="url">
       <tbody>
@@ -20,17 +20,17 @@
         </tr>
         <tr>
           <td>Дата создания</td>
-          <td>{{url.created_at}}</td>
+          <td>{{url.created_at.date() }}</td>
         </tr>
       </tbody>
     </table>
   </div>
 
     <h2 class="mt-5 mb-3">Проверки</h2>
-    <form method="post" action="/urls/1/checks">
+    <form method="post" action="{{ url_for('checks_post', url_id=url.id) }}">
     <input type="submit" class="btn btn-primary" value="Запустить проверку">
     </form>
-    
+
   <div>
     <table class="table table-bordered table-hover mt-2" data-test="checks">
     <thead>
@@ -43,12 +43,20 @@
         <th>Дата создания</th>
       </tr>
     </thead>
-      <tbody>
-    
+    <tbody>
+      {% for check in checks %}
+      <tr>
+        <td>{{ check.id }}</td>
+        <td>{{ check.status_code or '' }}</td>
+        <td>{{ check.h1 or '' }}</td>
+        <td>{{ check.title or '' }}</td>
+        <td>{{ check.description or '' }}</td>
+        <td>{{ check.created_at.date() }}</td>
+      </tr>
+      {% endfor %}
     </tbody>
     </table>
   </div>
-
     </div>
   </main>
 {% else %}
@@ -56,7 +64,7 @@
     <div class="container-lg mt-3">
       <h1>Страница не найдена</h1>
 
-    
+
   <p>Здесь нет того, что вы ищете</p>
   <p><a href="{{ url_for('index') }}">Вернуться на главную</a></p>
     </div>

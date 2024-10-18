@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, request, redirect, url_for
 import validators
 import os
 from dotenv import load_dotenv
-from .urls_repository import URLRepository
+from .url_repositories import URLRepository, URLCheckRepository
 
 
 load_dotenv()
@@ -35,7 +35,7 @@ def urls_post():
         flash('URL не может быть пустым', 'danger')
         return redirect(url_for('index'))
 
-    if validators.url(url, public=False):
+    if validators.url(url):
         repo = URLRepository()
         repo_id, message = repo.add_url(url)
         repo.close()
@@ -53,4 +53,18 @@ def url_show(url_id):
     url_data = repo.get_url_by_id(url_id)
     repo.close()
 
-    return render_template('urls/show.html', url=url_data)
+    repo = URLCheckRepository()
+    checks = repo.get_all_checks(url_id)
+    repo.close()
+
+    return render_template('urls/show.html', url=url_data, checks=checks)
+
+
+@app.route('/urls/<url_id>/checks', methods=['POST'])
+def checks_post(url_id):
+    repo = URLCheckRepository()
+    check = {}
+    repo.add_check(url_id, check)
+    repo.close()
+    flash('Страница успешно проверена', 'success')
+    return redirect((url_for('url_show', url_id=url_id)))

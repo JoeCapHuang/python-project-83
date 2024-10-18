@@ -47,3 +47,46 @@ class URLRepository:
     def close(self):
         if self.conn:
             self.conn.close()
+
+
+class URLCheckRepository:
+
+    def __init__(self):
+        self.conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
+
+    def add_check(self, url_id, check: dict):
+        status_code = check.get('status_code')
+        h1 = check.get('h1')
+        title = check.get('title')
+        description = check.get('description')
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO url_checks
+                (url_id, status_code, h1, title, description, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id;
+                """,
+                (
+                    url_id,
+                    status_code,
+                    h1,
+                    title,
+                    description,
+                    datetime.now()
+                )
+            )
+            self.conn.commit()
+            check_id = cur.fetchone()
+            return check_id
+
+    def get_all_checks(self, url_id):
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT * FROM url_checks "
+                        "WHERE url_id = %s "
+                        "ORDER BY created_at DESC;", (url_id,))
+            return cur.fetchall() or []
+
+    def close(self):
+        if self.conn:
+            self.conn.close()
