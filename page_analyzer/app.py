@@ -51,9 +51,6 @@ def urls_post():
 def url_show(url_id):
     repo = URLRepository()
     url_data = repo.get_url_by_id(url_id)
-    repo.close()
-
-    repo = URLCheckRepository()
     checks = repo.get_all_checks(url_id)
     repo.close()
 

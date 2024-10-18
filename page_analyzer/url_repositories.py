@@ -58,16 +58,6 @@ class URLRepository:
             cur.execute("SELECT * FROM urls WHERE id = %s;", (url_id,))
             return cur.fetchone()
 
-    def close(self):
-        if self.conn:
-            self.conn.close()
-
-
-class URLCheckRepository:
-
-    def __init__(self):
-        self.conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
-
     def add_check(self, url_id, check: dict):
         status_code = check.get('status_code')
         h1 = check.get('h1')
