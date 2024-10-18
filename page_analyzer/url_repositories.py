@@ -36,7 +36,21 @@ class URLRepository:
 
     def get_all_urls(self):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT * FROM urls ORDER BY created_at DESC;")
+            cur.execute("""
+                SELECT
+                    urls.id,
+                    urls.name,
+                    url_checks.status_code AS last_status_code,
+                    url_checks.created_at AS last_check_date
+                FROM
+                    urls
+                LEFT JOIN (
+                    SELECT DISTINCT ON (url_id) *
+                    FROM url_checks
+                    ORDER BY url_id, created_at DESC
+                ) AS url_checks ON urls.id = url_checks.url_id
+                ORDER BY urls.id;
+            """)
             return cur.fetchall()
 
     def get_url_by_id(self, url_id):
