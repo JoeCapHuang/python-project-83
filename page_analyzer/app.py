@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, request, redirect, url_for
 import validators
 import os
 from dotenv import load_dotenv
-from .url_repositories import URLRepository, URLCheckRepository
+from .url_repositories import URLRepository
 
 
 load_dotenv()
