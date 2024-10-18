@@ -19,14 +19,14 @@
     <tbody>
       {% for id, name, status_code, last_check_date in urls %}
       <tr>
-        <th>{{id}}</th>
-        <th>
+        <td>{{id}}</td>
+        <td>
           <a href="{{ url_for('url_show', url_id=id) }}">
           {{name}}
           </a>
-        </th>
-        <th>{{ last_check_date.date() or '' }}</th>
-        <th>{{ status_code or '' }}</th>
+        </td>
+        <td>{{ last_check_date.date() or '' }}</td>
+        <td>{{ status_code or '' }}</td>
       </tr>
       {% endfor %}
     </tbody>
