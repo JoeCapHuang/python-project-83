@@ -17,7 +17,7 @@
     </tr>
     </thead>
     <tbody>
-      {% for id, name, _ in urls %}
+      {% for id, name, status_code, last_check_date in urls %}
       <tr>
         <th>{{id}}</th>
         <th>
@@ -25,8 +25,8 @@
           {{name}}
           </a>
         </th>
-        <th></th>
-        <th></th>
+        <th>{{ last_check_date.date() or '' }}</th>
+        <th>{{ status_code or '' }}</th>
       </tr>
       {% endfor %}
     </tbody>
