@@ -59,7 +59,7 @@ def url_show(url_id):
 
 @app.route('/urls/<url_id>/checks', methods=['POST'])
 def checks_post(url_id):
-    repo = URLCheckRepository()
+    repo = URLRepository()
     check = {}
     repo.add_check(url_id, check)
     repo.close()
