@@ -25,8 +25,18 @@
           {{name}}
           </a>
         </td>
-        <td>{{ last_check_date.date() or '' }}</td>
-        <td>{{ status_code or '' }}</td>
+        <td>
+          {% if last_check_date %}
+            {{ last_check_date.date() }}
+          {% else %}
+          {% endif %}
+        </td>
+        <td>
+          {% if status_code %}
+            {{ status_code }}
+          {% else %}
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
