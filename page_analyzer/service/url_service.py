@@ -6,6 +6,7 @@ from ..repositories.url_repository import (
     get_url_by_id
 )
 from page_analyzer.db.database import DatabaseConnection
+from bs4 import BeautifulSoup
 
 
 def create_url(url):
@@ -33,11 +34,18 @@ def perform_url_check(url_id):
             response = requests.get(url, timeout=1)
             response.raise_for_status()
 
+            soup = BeautifulSoup(response.content, "html.parser")
+
+            h1 = soup.h1.string if soup.h1 else ''
+            title = soup.title.string if soup.title else ''
+            desc_tag = soup.find('meta', attrs={'name': 'description'})
+            description = desc_tag.get('content', '')if desc_tag else ''
+
             check_data = {
                 'status_code': response.status_code,
-                'h1': '',
-                'title': '',
-                'description': ''
+                'h1': h1,
+                'title': title,
+                'description': description
             }
             add_check(conn, url_id, check_data)
             return 'Страница успешно проверена', 'success'
