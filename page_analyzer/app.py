@@ -31,7 +31,7 @@ def urls_post():
     validity, message = validate_url(url)
     if not validity:
         flash(*message)
-        return redirect(url_for('index'))
+        return render_template('index.html'), 422
 
     url_id, message = create_url(url)
     flash(*message)
