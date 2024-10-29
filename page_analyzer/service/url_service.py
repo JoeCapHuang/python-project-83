@@ -1,7 +1,6 @@
 import requests
 from ..repositories.url_check_repository import add_check, get_all_checks
 from ..repositories.url_repository import get_url_by_id
-from page_analyzer.db.database import DatabaseConnection
 from bs4 import BeautifulSoup
 
 
