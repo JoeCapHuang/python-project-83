@@ -1,9 +1,9 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
 from dotenv import load_dotenv
+from .db.database import DatabaseConnection
+from .repositories.url_repository import get_all_urls, add_url
 from .tools import validate_url
 from .service.url_service import (
-    create_url,
-    list_urls,
     get_url_details,
     perform_url_check
 )
@@ -12,6 +12,7 @@ import os
 load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+DATABASE_URL = os.getenv('DATABASE_URL')
 
 
 @app.route('/')
@@ -21,7 +22,8 @@ def index():
 
 @app.route('/urls', methods=['GET'])
 def urls_index():
-    urls = list_urls()
+    with DatabaseConnection(DATABASE_URL) as conn:
+        urls = get_all_urls(conn)
     return render_template('urls/index.html', urls=urls)
 
 
@@ -32,20 +34,22 @@ def urls_post():
     if not validity:
         flash(*message)
         return render_template('index.html'), 422
-
-    url_id, message = create_url(url)
+    with DatabaseConnection(DATABASE_URL) as conn:
+        url_id, message = add_url(conn, url)
     flash(*message)
     return redirect(url_for('url_show', url_id=url_id))
 
 
 @app.route('/urls/<url_id>')
 def url_show(url_id):
-    url_data, checks = get_url_details(url_id)
+    with DatabaseConnection(DATABASE_URL) as conn:
+        url_data, checks = get_url_details(conn, url_id)
     return render_template('urls/show.html', url=url_data, checks=checks)
 
 
 @app.route('/urls/<url_id>/checks', methods=['POST'])
 def checks_post(url_id):
-    message = perform_url_check(url_id)
+    with DatabaseConnection(DATABASE_URL) as conn:
+        message = perform_url_check(conn, url_id)
     flash(*message)
     return redirect(url_for('url_show', url_id=url_id))
