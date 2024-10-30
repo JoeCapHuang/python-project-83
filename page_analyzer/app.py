@@ -1,9 +1,9 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
 from dotenv import load_dotenv
-from .db.database import DatabaseConnection
-from .repositories.url_repository import get_all_urls, add_url
-from .tools import validate_url
-from .service.url_service import (
+from page_analyzer.db.database import DatabaseConnection
+from page_analyzer.repositories.url_repository import get_all_urls, add_url
+from page_analyzer.tools import validate_url
+from page_analyzer.service.url_service import (
     get_url_details,
     perform_url_check
 )
