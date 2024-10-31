@@ -1,25 +1,27 @@
+import validators
+from urllib.parse import urlparse, urlunparse
 import requests
-from page_analyzer.repositories.url_check_repository import add_check, get_all_checks
-from page_analyzer.repositories.url_repository import get_url_by_id
 from bs4 import BeautifulSoup
 
 
-def get_url_details(conn, url_id):
-    url_data = get_url_by_id(conn, url_id)
-    checks = get_all_checks(conn, url_id)
-    return url_data, checks
+def get_base_url(url):
+    parsed_url = urlparse(url)
+    base_url = urlunparse((parsed_url.scheme, parsed_url.netloc, '', '', '', ''))
+    return base_url
 
 
-def perform_url_check(conn, url_id):
-    try:
-        url_data = get_url_by_id(conn, url_id)
-        url = url_data.get('name')
-        check_data = fetch_and_parse_url(url)
-        add_check(conn, url_id, check_data)
-        return 'Страница успешно проверена', 'success'
+def validate_url(url: str):
 
-    except requests.exceptions.RequestException:
-        return 'Произошла ошибка при проверке', 'danger'
+    if len(url) > 255:
+        return False, ('URL превышает 255 символов', 'danger')
+
+    if not url:
+        return False, ('URL не может быть пустым', 'danger')
+
+    if validators.url(url):
+        return True, ('', '')
+
+    return False, ('Некорректный URL', 'danger')
 
 
 def fetch_and_parse_url(url):

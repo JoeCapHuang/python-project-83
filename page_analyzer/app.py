@@ -1,13 +1,23 @@
-from flask import Flask, render_template, flash, request, redirect, url_for
-from dotenv import load_dotenv
-from page_analyzer.db.database import DatabaseConnection
-from page_analyzer.repositories.url_repository import get_all_urls, add_url
-from page_analyzer.tools import validate_url
-from page_analyzer.service.url_service import (
-    get_url_details,
-    perform_url_check
-)
 import os
+from dotenv import load_dotenv
+import requests
+from flask import (
+    Flask,
+    render_template,
+    flash,
+    request,
+    redirect,
+    url_for
+)
+from page_analyzer.db import (
+    DatabaseConnection,
+    add_check,
+    get_url_by_id,
+    get_all_checks,
+    get_all_urls,
+    add_url,
+)
+from page_analyzer.utils import validate_url, fetch_and_parse_url, get_base_url
 
 load_dotenv()
 app = Flask(__name__)
@@ -34,22 +44,34 @@ def urls_post():
     if not validity:
         flash(*message)
         return render_template('index.html'), 422
+
     with DatabaseConnection(DATABASE_URL) as conn:
-        url_id, message = add_url(conn, url)
-    flash(*message)
+        base_url = get_base_url(url)
+        url_id, was_created = add_url(conn, base_url)
+        if not was_created:
+            flash('Страница уже существует', 'info')
+        else:
+            flash('Страница успешно добавлена', 'success')
     return redirect(url_for('url_show', url_id=url_id))
 
 
 @app.route('/urls/<url_id>')
 def url_show(url_id):
     with DatabaseConnection(DATABASE_URL) as conn:
-        url_data, checks = get_url_details(conn, url_id)
+        url_data = get_url_by_id(conn, url_id)
+        checks = get_all_checks(conn, url_id)
     return render_template('urls/show.html', url=url_data, checks=checks)
 
 
 @app.route('/urls/<url_id>/checks', methods=['POST'])
 def checks_post(url_id):
-    with DatabaseConnection(DATABASE_URL) as conn:
-        message = perform_url_check(conn, url_id)
-    flash(*message)
+    try:
+        with DatabaseConnection(DATABASE_URL) as conn:
+            url_data = get_url_by_id(conn, url_id)
+            url = url_data.get('name')
+            check_data = fetch_and_parse_url(url)
+            add_check(conn, url_id, check_data)
+        flash('Страница успешно проверена', 'success')
+    except requests.exceptions.RequestException:
+        flash('Произошла ошибка при проверке', 'danger')
     return redirect(url_for('url_show', url_id=url_id))
